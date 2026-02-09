@@ -1,0 +1,47 @@
+model Asset {
+  id              String        @id @default(ulid())
+  departmentId    String
+  tag             String
+  type            AssetType     @default(Other)
+  brand           String?
+  model           String?
+  serialNumber    String?
+  owner           String?
+  details         String?
+  contractNumber  String?
+  contractEndDate String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @default(now()) @updatedAt
+  department      Department    @relation(fields: [departmentId], references: [id])
+  repairs         AssetRepair[]
+}
+
+enum AssetType {
+  PC
+  Monitor
+  Printer
+  Other
+}
+
+model AssetRepair {
+  id          String            @id @default(ulid())
+  assetId     String
+  incidentId  String
+  title       String
+  cause       String?
+  description String?
+  informedAt  DateTime
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @default(now()) @updatedAt
+  asset       Asset             @relation(fields: [assetId], references: [id])
+  procurement AssetProcurement?
+}
+
+model AssetProcurement {
+  id        String      @id @default(ulid())
+  repairId  String      @unique
+  data      Json?       @db.JsonB
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @default(now()) @updatedAt
+  repair    AssetRepair @relation(fields: [repairId], references: [id])
+}

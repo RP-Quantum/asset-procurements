@@ -1,0 +1,18 @@
+model User {
+  id         String   @id @default(ulid())
+  sub        String   @unique
+  employeeId String   @unique
+  name       String
+  email      String   @unique
+  position   String
+  department String
+  role       UserRole @default(Guest)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+}
+
+enum UserRole {
+  Admin
+  User
+  Guest
+}
