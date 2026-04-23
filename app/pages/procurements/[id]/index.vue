@@ -53,12 +53,15 @@ const documentProgress = computed(() => {
 // Download document
 const downloadingDocs = ref<Record<string, boolean>>({});
 
-const downloadDocument = async (documentType: string) => {
+const downloadDocument = async (
+	documentType: string,
+	format: "docx" | "pdf" = "docx",
+) => {
 	try {
 		downloadingDocs.value[documentType] = true;
 
 		const response = await fetch(
-			`/api/asset-procurements/${props.data.id}/documents/${documentType}`,
+			`/api/asset-procurements/${props.data.id}/documents/${documentType}?format=${format}`,
 		);
 
 		if (!response.ok) {
@@ -105,7 +108,6 @@ const downloadDocument = async (documentType: string) => {
 	}
 };
 </script>
-
 <template>
 	<div class="space-y-4 p-4 sm:space-y-6 sm:p-6">
 		<!-- Document Readiness Card -->
@@ -128,7 +130,6 @@ const downloadDocument = async (documentType: string) => {
 					</UBadge>
 				</div>
 			</template>
-
 			<div>
 				<div class="mb-2 flex items-center justify-between">
 					<span class="text-sm text-gray-600 dark:text-gray-400">
@@ -149,8 +150,6 @@ const downloadDocument = async (documentType: string) => {
 				/>
 			</div>
 		</UCard>
-
-		<!-- Documents List -->
 		<UCard>
 			<template #header>
 				<div class="flex items-center gap-2">
@@ -158,32 +157,41 @@ const downloadDocument = async (documentType: string) => {
 					<h3 class="text-lg font-semibold">เอกสารที่สามารถดาวน์โหลดได้</h3>
 				</div>
 			</template>
-
 			<div class="divide-y divide-gray-200 dark:divide-gray-800">
 				<div
 					v-for="doc in PROCUREMENT_DOCUMENTS"
 					:key="doc.value"
-					class="flex items-center justify-between p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50"
+					class="flex flex-col justify-between gap-4 p-4 transition-colors hover:bg-gray-50 sm:flex-row sm:items-center dark:hover:bg-gray-800/50"
 				>
 					<div class="flex items-center gap-3">
 						<UIcon :name="doc.icon" class="h-5 w-5 text-gray-500" />
 						<span class="text-sm font-medium">{{ doc.label }}</span>
 					</div>
-					<UButton
-						:loading="downloadingDocs[doc.value]"
-						color="primary"
-						variant="soft"
-						size="sm"
-						icon="lucide:download"
-						@click="downloadDocument(doc.value)"
-					>
-						ดาวน์โหลด
-					</UButton>
+					<UFieldGroup orientation="vertical">
+						<UButton
+							:loading="downloadingDocs[doc.value]"
+							color="primary"
+							variant="soft"
+							size="sm"
+							icon="lucide:download"
+							@click="downloadDocument(doc.value, 'docx')"
+						>
+							<span class="hidden sm:inline">ดาวน์โหลด</span> .docx
+						</UButton>
+						<UButton
+							:loading="downloadingDocs[doc.value]"
+							color="neutral"
+							variant="soft"
+							size="sm"
+							icon="lucide:download"
+							@click="downloadDocument(doc.value, 'pdf')"
+						>
+							<span class="hidden sm:inline">ดาวน์โหลด</span> .pdf
+						</UButton>
+					</UFieldGroup>
 				</div>
 			</div>
 		</UCard>
-
-		<!-- Procurement Details -->
 		<UCard>
 			<template #header>
 				<div class="flex items-center justify-between">
@@ -204,7 +212,6 @@ const downloadDocument = async (documentType: string) => {
 			</template>
 
 			<div class="space-y-6">
-				<!-- ข้อมูลเอกสารขออนุมัติหลักการ -->
 				<div>
 					<h4
 						class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300"
@@ -240,8 +247,6 @@ const downloadDocument = async (documentType: string) => {
 				</div>
 
 				<UDivider />
-
-				<!-- ข้อมูลเอกสารขออนุมัติแต่งตั้งเจ้าหน้าที่ TOR -->
 				<div>
 					<h4
 						class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300"
@@ -290,8 +295,6 @@ const downloadDocument = async (documentType: string) => {
 				</div>
 
 				<UDivider />
-
-				<!-- ข้อมูลเอกสารขอจัดซื้อ ฮาร์ดแวร์ และ อุปกรณ์ต่อพ่วง -->
 				<div>
 					<h4
 						class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300"
@@ -347,8 +350,6 @@ const downloadDocument = async (documentType: string) => {
 				</div>
 
 				<UDivider />
-
-				<!-- ข้อมูลเอกสารรายงานขอซื้อ -->
 				<div>
 					<h4
 						class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300"
@@ -376,8 +377,6 @@ const downloadDocument = async (documentType: string) => {
 				</div>
 
 				<UDivider />
-
-				<!-- ข้อมูลเอกสารขออนุมัติจัดซื้อ -->
 				<div>
 					<h4
 						class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300"
@@ -432,8 +431,6 @@ const downloadDocument = async (documentType: string) => {
 				</div>
 
 				<UDivider />
-
-				<!-- ข้อมูลเอกสารรายงานตรวจรับพัสดุ -->
 				<div>
 					<h4
 						class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300"
@@ -489,8 +486,6 @@ const downloadDocument = async (documentType: string) => {
 				</div>
 
 				<UDivider />
-
-				<!-- ข้อมูลเอกสารใบสำคัญจ่ายเงิน -->
 				<div>
 					<h4
 						class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300"

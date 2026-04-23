@@ -28,7 +28,6 @@ function handleLogin() {
 			class="w-full max-w-sm text-center shadow-lg"
 			:ui="{ body: 'space-y-4' }"
 		>
-			<!--ไอคอน-->
 			<div
 				class="mx-auto w-14 h-14 flex items-center justify-center rounded-full
 				       bg-primary/10 text-primary"
@@ -49,7 +48,7 @@ function handleLogin() {
 				icon="lucide:log-in"
 				@click="handleLogin"
 			>
-				เข้าสู่ระบบ
+				เข้าสู่เว็บไซต์
 			</UButton>
 		</UCard>
 	</div>

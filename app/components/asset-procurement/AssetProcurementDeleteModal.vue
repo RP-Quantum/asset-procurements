@@ -43,12 +43,12 @@ async function handleDelete() {
 
 		<template #body>
 			<p class="text-muted-foreground mb-4">
-				คุณแน่ใจหรือไม่ว่าต้องการลบการจัดซื้อสำหรับการซ่อม
-				<span class="text-foreground font-semibold">{{
-					assetProcurement.repair.title
-				}}</span>
-				({{ assetProcurement.repair.asset.tag }})?
-			</p>
+        คุณแน่ใจหรือไม่ว่าต้องการลบการจัดซื้อสำหรับการซ่อม
+        <span class="text-foreground font-semibold">{{
+            assetProcurement?.repair?.title
+        }}</span>
+        ({{ assetProcurement?.repair?.asset?.tag }})?
+    </p>
 
 			<div class="flex justify-end gap-2">
 				<UButton color="neutral" variant="outline" @click="emit('close', {})">

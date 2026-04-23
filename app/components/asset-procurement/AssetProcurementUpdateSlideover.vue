@@ -137,273 +137,171 @@ async function handleUpdate(event: FormSubmitEvent<UpdateAssetProcurementDTO>) {
 </script>
 
 <template>
-  <USlideover title="แก้ไขการจัดซื้อ">
-    <slot />
-
+  <USlideover title="แก้ไขข้อมูลการจัดซื้อ">
     <template #body>
+      <div class="mb-6 rounded-xl bg-slate-50 p-4 dark:bg-gray-900 border border-slate-200 dark:border-gray-800">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="p-2 bg-primary-500/10 rounded-lg">
+            <UIcon name="lucide:info" class="w-5 h-5 text-primary-600" />
+          </div>
+          <span class="font-bold text-sm text-slate-700 dark:text-slate-200">ข้อมูลอ้างอิงการซ่อม</span>
+        </div>
+        <div class="grid grid-cols-1 gap-2 text-sm text-slate-500">
+          <p><span class="font-medium text-slate-700 dark:text-slate-300">แจ้งซ่อม:</span> {{ data.repair.incidentId }} - {{ data.repair.title }}</p>
+          <p><span class="font-medium text-slate-700 dark:text-slate-300">ทรัพย์สิน:</span> {{ data.repair.asset.tag }} ({{ data.repair.asset.type }})</p>
+        </div>
+      </div>
+
       <UForm
-        class="space-y-2 sm:space-y-3"
+        class="space-y-6 pb-10"
         :schema="schema"
         :state="state"
         @submit="handleUpdate"
       >
-        <!-- Display repair info (read-only) -->
-        <UFormField
-          name="repair"
-          :label="getAssetProcurementFieldLabel('repair')"
-        >
-          <UInput
-            :model-value="`${data.repair.incidentId} - ${data.repair.title}`"
-            disabled
-          />
-        </UFormField>
-
-        <UFormField
-          name="asset"
-          :label="getAssetProcurementFieldLabel('asset')"
-        >
-          <UInput
-            :model-value="`${data.repair.asset.tag} - ${data.repair.asset.type}`"
-            disabled
-          />
-        </UFormField>
-
-        <UDivider label="ข้อมูลการจัดซื้อ" />
-
-        <UFormField
-          name="vendor"
-          :label="getAssetProcurementFieldLabel('vendor')"
-        >
-          <UInput v-model="state.vendor" placeholder="ชื่อผู้จำหน่าย/ร้านค้า" />
-        </UFormField>
-
-        <UFormField
-          name="quoteId"
-          :label="getAssetProcurementFieldLabel('quoteId')"
-        >
-          <UInput v-model="state.quoteId" placeholder="เลขที่ใบเสนอราคา" />
-        </UFormField>
-
-        <UFormField
-          name="itemName"
-          :label="getAssetProcurementFieldLabel('itemName')"
-        >
-          <UInput
-            v-model="state.itemName"
-            placeholder="ชื่อสินค้า/อะไหล่/บริการ"
-          />
-        </UFormField>
-
-        <UDivider label="ข้อมูล TOR" />
-
-        <UFormField
-          name="torOfficer"
-          :label="getAssetProcurementFieldLabel('torOfficer')"
-        >
-          <UInput
-            v-model="state.torOfficer"
-            placeholder="ชื่อเจ้าหน้าที่ TOR"
-          />
-        </UFormField>
-
-        <UFormField
-          name="torOfficerPosition"
-          :label="getAssetProcurementFieldLabel('torOfficerPosition')"
-        >
-          <UInput v-model="state.torOfficerPosition" placeholder="ตำแหน่ง" />
-        </UFormField>
-
-        <UFormField
-          name="torOfficerDepartment"
-          :label="getAssetProcurementFieldLabel('torOfficerDepartment')"
-        >
-          <UInput v-model="state.torOfficerDepartment" placeholder="หน่วยงาน" />
-        </UFormField>
-
-        <UFormField
-          name="estimatedBudget"
-          :label="getAssetProcurementFieldLabel('estimatedBudget')"
-        >
-          <UInput
-            v-model.number="state.estimatedBudget"
-            type="number"
-            placeholder="งบประมาณโดยประมาณ (บาท)"
-          />
-        </UFormField>
-        <UDivider label="รายการจัดซื้อ" />
-
-        <div class="space-y-3">
-          <div
-            v-for="(item, index) in state.procureItems"
-            :key="index"
-            class="space-y-2 rounded-lg border border-gray-200 p-3 dark:border-gray-700"
-          >
-            <div class="mb-2 flex items-center justify-between">
-              <span class="text-sm font-medium">รายการที่ {{ index + 1 }}</span>
-              <UButton
-                icon="lucide:trash-2"
-                size="xs"
-                color="error"
-                variant="ghost"
-                @click="removeProcureItem(index)"
-              />
-            </div>
-
-            <UFormField
-              :name="`procureItems.${index}.itemName`"
-              label="ชื่อรายการ"
-            >
-              <UInput v-model="item.itemName" placeholder="ชื่อสินค้า/บริการ" />
+        <div class="space-y-4">
+          <div class="flex items-center gap-2 border-l-4 border-emerald-500 pl-3">
+            <h3 class="font-bold text-slate-800 dark:text-slate-100">ข้อมูลการจัดซื้อและผู้ค้า</h3>
+          </div>
+          
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <UFormField name="vendor" :label="getAssetProcurementFieldLabel('vendor')" class="sm:col-span-2">
+              <UInput v-model="state.vendor" icon="lucide:store" placeholder="ชื่อผู้จำหน่าย/ร้านค้า" />
             </UFormField>
 
-            <div class="grid grid-cols-2 gap-2">
-              <UFormField
-                :name="`procureItems.${index}.quantity`"
-                label="จำนวน"
-              >
-                <UInput
-                  v-model.number="item.quantity"
-                  type="number"
-                  min="1"
-                  placeholder="จำนวน"
-                />
-              </UFormField>
+            <UFormField name="quoteId" :label="getAssetProcurementFieldLabel('quoteId')">
+              <UInput v-model="state.quoteId" icon="lucide:file-text" placeholder="เลขที่ใบเสนอราคา" />
+            </UFormField>
 
-              <UFormField
-                :name="`procureItems.${index}.total`"
-                label="ราคารวม (บาท)"
-                required
-              >
-                <UInput
-                  v-model.number="item.total"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="ราคารวม (รวม VAT 7%)"
-                />
-              </UFormField>
-            </div>
+            <UFormField name="itemName" :label="getAssetProcurementFieldLabel('itemName')">
+              <UInput v-model="state.itemName" placeholder="ชื่อสินค้าหลัก" />
+            </UFormField>
+          </div>
+        </div>
 
-            <div
-              v-if="item.total > 0"
-              class="space-y-1 rounded bg-gray-50 p-2 text-sm dark:bg-gray-800"
-            >
-              <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">ราคาย่อย:</span>
-                <span class="font-medium"
-                  >{{
-                    getItemSubtotal(item).toLocaleString("th-TH", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
-                  }}
-                  บาท</span
-                >
+        <div class="space-y-4 rounded-2xl bg-gray-50/50 p-4 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+          <div class="flex items-center gap-2 border-l-4 border-blue-500 pl-3">
+            <h3 class="font-bold text-slate-800 dark:text-slate-100">คณะกรรมการ / TOR</h3>
+          </div>
+
+          <UFormField name="torOfficer" :label="getAssetProcurementFieldLabel('torOfficer')">
+            <UInput v-model="state.torOfficer" icon="lucide:user" placeholder="ชื่อเจ้าหน้าที่ TOR" />
+          </UFormField>
+
+          <div class="grid grid-cols-2 gap-3">
+            <UFormField name="torOfficerPosition" :label="getAssetProcurementFieldLabel('torOfficerPosition')">
+              <UInput v-model="state.torOfficerPosition" placeholder="ตำแหน่ง" />
+            </UFormField>
+            <UFormField name="torOfficerDepartment" :label="getAssetProcurementFieldLabel('torOfficerDepartment')">
+              <UInput v-model="state.torOfficerDepartment" placeholder="หน่วยงาน" />
+            </UFormField>
+          </div>
+
+          <UFormField name="estimatedBudget" :label="getAssetProcurementFieldLabel('estimatedBudget')">
+            <UInput v-model.number="state.estimatedBudget" type="number" icon="lucide:banknote" placeholder="0.00" />
+          </UFormField>
+        </div>
+
+        <div class="space-y-4">
+          <div class="flex items-center justify-between border-l-4 border-amber-500 pl-3">
+            <h3 class="font-bold text-slate-800 dark:text-slate-100">รายละเอียดรายการจัดซื้อ</h3>
+            <UButton
+              icon="lucide:plus"
+              size="xs"
+              label="เพิ่มรายการ"
+              variant="subtle"
+              color="primary"
+              @click="addProcureItem"
+            />
+          </div>
+
+          <div v-for="(item, index) in state.procureItems" :key="index" class="relative group">
+            <div class="space-y-3 rounded-xl border border-gray-200 p-4 dark:border-gray-700 transition-all hover:border-primary-300 dark:hover:border-primary-800">
+              <div class="flex items-center justify-between">
+                <UBadge color="gray" variant="subtle">รายการที่ {{ index + 1 }}</UBadge>
+                <UButton
+                  icon="lucide:x"
+                  size="xs"
+                  color="red"
+                  variant="ghost"
+                  @click="removeProcureItem(index)"
+                />
               </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600 dark:text-gray-400">VAT 7%:</span>
-                <span class="font-medium"
-                  >{{
-                    getItemVat(item).toLocaleString("th-TH", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
-                  }}
-                  บาท</span
-                >
+
+              <UFormField :name="`procureItems.${index}.itemName`" label="ชื่อสินค้า/บริการ">
+                <UInput v-model="item.itemName" placeholder="ระบุชื่อสินค้าหรืออะไหล่" />
+              </UFormField>
+
+              <div class="grid grid-cols-2 gap-4">
+                <UFormField label="จำนวน">
+                  <UInput v-model.number="item.quantity" type="number" min="1" />
+                </UFormField>
+                <UFormField label="ราคารวม (รวม VAT)">
+                  <UInput v-model.number="item.total" type="number" step="0.01" />
+                </UFormField>
+              </div>
+
+              <div v-if="item.total > 0" class="flex justify-end gap-4 text-[11px] text-gray-500 font-mono italic">
+                <span>ย่อย: {{ getItemSubtotal(item).toFixed(2) }}</span>
+                <span>VAT(7%): {{ getItemVat(item).toFixed(2) }}</span>
               </div>
             </div>
           </div>
 
-          <UButton
-            icon="lucide:plus"
-            variant="outline"
-            block
-            @click="addProcureItem"
-          >
-            เพิ่มรายการ
-          </UButton>
-
-          <UCard
-            v-if="state.procureItems.length > 0"
-            class="bg-primary-50 dark:bg-primary-950"
-          >
-            <div class="space-y-2">
-              <div
-                class="text-primary-600 dark:text-primary-400 mb-3 flex items-center gap-2"
-              >
-                <UIcon name="lucide:calculator" class="h-5 w-5" />
-                <span class="font-semibold">สรุปยอดรวม</span>
+          <div v-if="state.procureItems.length > 0" class="overflow-hidden rounded-2xl border-2 border-primary-500/20 shadow-lg">
+            <div class="bg-primary-600 px-4 py-2 text-white flex items-center gap-2">
+              <UIcon name="lucide:calculator" class="w-4 h-4" />
+              <span class="text-xs font-bold uppercase tracking-wider">สรุปการเงิน</span>
+            </div>
+            <div class="bg-white p-4 dark:bg-gray-900 space-y-2">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">ราคารวม (ก่อน VAT)</span>
+                <span class="font-medium font-mono">{{ grandSubtotal.toLocaleString() }}</span>
               </div>
               <div class="flex justify-between text-sm">
-                <span class="text-gray-600 dark:text-gray-400"
-                  >ราคาย่อยรวม:</span
-                >
-                <span class="font-medium"
-                  >{{
-                    grandSubtotal.toLocaleString("th-TH", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
-                  }}
-                  บาท</span
-                >
+                <span class="text-gray-500">ภาษีมูลค่าเพิ่ม (7%)</span>
+                <span class="font-medium font-mono">{{ grandVat.toLocaleString() }}</span>
               </div>
-              <div class="flex justify-between text-sm">
-                <span class="text-gray-600 dark:text-gray-400">VAT 7%:</span>
-                <span class="font-medium"
-                  >{{
-                    grandVat.toLocaleString("th-TH", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
-                  }}
-                  บาท</span
-                >
-              </div>
-              <div
-                class="border-primary-200 dark:border-primary-800 flex justify-between border-t pt-2"
-              >
-                <span
-                  class="text-primary-900 dark:text-primary-100 text-lg font-bold"
-                  >ยอดรวมทั้งสิ้น:</span
-                >
-                <span
-                  class="text-primary-600 dark:text-primary-400 text-lg font-bold"
-                  >{{
-                    grandTotal.toLocaleString("th-TH", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
-                  }}
-                  บาท</span
-                >
+              <div class="mt-2 border-t border-dashed pt-2 flex justify-between items-center text-primary-600 dark:text-primary-400">
+                <span class="font-bold">ยอดสุทธิทั้งสิ้น</span>
+                <span class="text-xl font-black font-mono underline underline-offset-4">{{ grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}</span>
               </div>
             </div>
-          </UCard>
+          </div>
         </div>
 
-        <UFormField
-          name="reason"
-          :label="getAssetProcurementFieldLabel('reason')"
-        >
-          <UInput
-            v-model="state.reason"
-            placeholder="เหตุผลและความจำเป็นที่ต้องจัดซื้อ"
-          />
-        </UFormField>
+        <div class="space-y-4 pt-4">
+          <UFormField name="reason" :label="getAssetProcurementFieldLabel('reason')">
+            <UTextarea v-model="state.reason" placeholder="เหตุผลและความจำเป็น..." />
+          </UFormField>
 
-        <UFormField
-          name="source"
-          :label="getAssetProcurementFieldLabel('แหล่งที่มาของราคากลาง')"
-        >
-          <UInput v-model="state.source" placeholder="แหล่งที่มาของราคากลาง" />
-        </UFormField>
+          <UFormField name="source" label="แหล่งที่มาของราคากลาง">
+            <UInput v-model="state.source" icon="lucide:link-2" placeholder="สืบราคาจาก..." />
+          </UFormField>
+        </div>
 
-        <UButton type="submit" block :loading="isUpdating">
-          บันทึกการแก้ไข
-        </UButton>
+        <div class="sticky bottom-0 bg-white pt-4 pb-2 dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800">
+          <UButton 
+            type="submit" 
+            block 
+            size="xl"
+            :loading="isUpdating"
+            class="shadow-lg shadow-primary-500/20"
+          >
+            บันทึกการแก้ไขข้อมูล
+          </UButton>
+        </div>
       </UForm>
     </template>
   </USlideover>
 </template>
+<style scoped>
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.3s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+</style>

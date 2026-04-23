@@ -68,6 +68,7 @@ const navigationMenuItems = computed<NavigationMenuItem[]>(() => {
 						to="/asset-procurements"
 					/>
 				</template>
+				
 			</UDashboardNavbar>
 
 			<UDashboardToolbar>

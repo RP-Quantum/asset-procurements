@@ -2,115 +2,157 @@
 definePageMeta({
   requiresAuth: true,
 });
-
 useSeoMeta({
   title: "หน้าหลัก",
 });
 </script>
-
 <template>
-  <UDashboardPanel class="!p-0 !m-0 bg-white dark:bg-slate-900">
-    <!-- Header -->
+  <UDashboardPanel
+    class="!p-0 !m-0
+           bg-white text-gray-900
+           dark:bg-slate-900 dark:text-white"
+  >
     <template #header>
       <UDashboardNavbar title="หน้าหลัก" />
     </template>
-
-    <!-- Hero Section -->
     <section
-      class="relative h-[89vh] bg-cover bg-center"
+      class="relative h-screen w-full bg-cover bg-center"
       style="background-image: url('/n3.png');"
     >
-      <!-- Overlay -->
       <div
         class="absolute inset-0
-               bg-gradient-to-b
-               from-white/40 via-white/30 to-gray-100/20
-               dark:from-[#0f172b]/70
-               dark:via-[#0f172b]/70
-               dark:to-[#0f172b]/20
-               backdrop-blur-[2px]"
+               bg-gradient-to-br
+               from-white/70 via-white/40 to-transparent
+               dark:from-black/80 dark:via-black/60 dark:to-black/30"
       />
-
-      <!-- Content -->
-      <div
-        class="relative z-10 flex flex-col items-center justify-center
-               h-full text-center px-6"
-      >
-        <p
-          class="mb-4 text-sm md:text-base uppercase tracking-widest
-                 text-sky-600 dark:text-sky-400"
-        >
-          Procurement Management System
-        </p>
-
+     <div
+  class="relative z-10 h-full flex flex-col
+         justify-center items-center
+         text-center px-6
+         -translate-y-16 md:-translate-y-24"
+>
         <h1
-          class="mb-8 text-4xl md:text-6xl lg:text-7xl
-                 font-extrabold leading-tight
-                 text-slate-900 dark:text-white
+          class="font-extrabold
+                 text-4xl md:text-6xl lg:text-7xl
+                 leading-tight tracking-tight
                  drop-shadow-xl"
         >
-          ระบบ
+          ระบบงานทรัพย์สินสารสนเทศ <br />
           <span
-            class="inline-block py-2
-                   bg-gradient-to-r from-sky-500 to-cyan-400
+            class="bg-gradient-to-r from-blue-600 via-cyan-500 to-sky-400
+                   
                    bg-clip-text text-transparent"
           >
-            จัดซื้อจัดจ้าง
+            การจัดซื้อจัดจ้าง
           </span>
         </h1>
-
-        <!-- Action Buttons -->
-        <div class="flex flex-col md:flex-row gap-6 justify-center">
+        <p
+          class="mt-6 max-w-2xl text-sm md:text-base
+                 text-black dark:text-white/80
+                 leading-relaxed"
+        >
+          ระบบบริหารจัดการทรัพย์สินและการจัดซื้อจัดจ้างของการไฟฟ้าส่วนภูมิภาคเขต 3 ภาคเหนือ
+        </p>
+        <div class="mt-10 flex flex-wrap justify-center gap-5">
           <NuxtLink
-            to="/asset-procurements"
-            class="px-12 py-4 rounded-2xl text-lg font-semibold
-                   bg-gradient-to-r from-sky-500 to-cyan-400
+            to="assets/"
+            class="px-10 py-4 rounded-2xl
+                   bg-gradient-to-r from-blue-500 to-cyan-500
+                   hover:scale-105 hover:shadow-cyan-500/40
                    text-white shadow-xl
-                   hover:shadow-2xl hover:-translate-y-1
-                   transition-all duration-300"
+                   transition duration-300"
           >
-            จัดซื้อ / จัดจ้าง
+            จัดการทรัพย์สิน
           </NuxtLink>
-
           <NuxtLink
-            to="/assets"
-            class="px-10 py-4 rounded-2xl text-lg font-semibold
-                   bg-white/80 dark:bg-slate-800
-                   text-slate-900 dark:text-white
-                   border border-slate-200 dark:border-slate-700
-                   hover:bg-white dark:hover:bg-slate-700
-                   hover:-translate-y-1
-                   transition-all duration-300"
+          to="assets-repair/"
+            class="px-10 py-4 rounded-2xl
+                   bg-gradient-to-r from-blue-500 to-cyan-500
+                   hover:scale-105 hover:shadow-cyan-500/40
+                   text-white shadow-xl
+                   transition duration-300"
           >
-            ทรัพย์สิน
+            แจ้งซ่อมทรัพย์สิน
           </NuxtLink>
-
           <NuxtLink
-            to="/asset-repairs"
-            class="px-10 py-4 rounded-2xl text-lg font-semibold
-                   bg-white/80 dark:bg-slate-800
-                   text-slate-900 dark:text-white
-                   border border-slate-200 dark:border-slate-700
-                   hover:bg-white dark:hover:bg-slate-700
-                   hover:-translate-y-1
-                   transition-all duration-300"
+          to="procurements/"
+            class="px-10 py-4 rounded-2xl
+                   bg-gradient-to-r from-blue-500 to-cyan-500
+                   hover:scale-105 hover:shadow-cyan-500/40
+                   text-white shadow-xl
+                   transition duration-300"
           >
-            แจ้งซ่อม
+            จัดซื้ออะไหร่ทรัพย์สิน
           </NuxtLink>
         </div>
       </div>
-    </section>
-
-    <!-- Feature Intro -->
-    <section class="py-16 px-6 bg-gray-50 dark:bg-slate-800">
-      <div class="max-w-6xl mx-auto text-center">
-        <h2 class="mb-4 text-3xl md:text-4xl font-bold text-sky-500">
-          ระบบที่ช่วยให้งานง่ายขึ้น
-        </h2>
-        <p class="max-w-2xl mx-auto text-slate-600 dark:text-slate-300">
-          จัดการทรัพย์สิน การซ่อม และการจัดซื้ออยู่ในที่เดียวกัน
-          พร้อมตรวจสอบข้อมูลย้อนหลังได้อย่างเป็นระบบ
-        </p>
+      <div
+        class="absolute bottom-8 left-1/2 -translate-x-1/2 
+               w-[95%] md:w-[90%] max-w-6xl
+               rounded-3xl
+               backdrop-blur-2xl
+               border
+               shadow-[0_10px_40px_rgba(0,0,0,0.25)]
+               
+               bg-white/60 border-white/30 text-gray-800
+               dark:bg-white/10 dark:border-white/20 dark:text-white"
+      >
+        <div
+          class="px-6 md:px-12 py-6
+                 grid grid-cols-1 md:grid-cols-3
+                 items-center gap-6"
+        >
+          <div>
+            <p class="font-semibold text-lg">
+              ระบบทรัพย์สินองค์กร
+            </p>
+            <p class="text-sm opacity-80 mt-2 leading-relaxed">
+              ครอบคลุมงานทรัพย์สิน แจ้งซ่อม และจัดซื้อ
+              ภายในระบบเดียว
+            </p>
+          </div>
+          <div
+            class="flex justify-center gap-12 text-center
+                   md:border-l md:border-r
+                   border-gray-300 dark:border-white/20
+                   px-6"
+          >
+            <div class="hover:scale-110 transition cursor-pointer">
+              <UIcon name="i-heroicons-computer-desktop" class="text-3xl mb-1" />
+              <p class="text-xs">ทรัพย์สิน</p>
+            </div>
+            <div class="hover:scale-110 transition cursor-pointer">
+              <UIcon name="i-heroicons-wrench-screwdriver" class="text-3xl mb-1" />
+              <p class="text-xs">แจ้งซ่อม</p>
+            </div>
+            <div class="hover:scale-110 transition cursor-pointer">
+              <UIcon name="i-heroicons-shopping-cart" class="text-3xl mb-1" />
+              <p class="text-xs">จัดซื้อ</p>
+            </div>
+          </div>
+<div class="text-right">
+  <p class="text-sm opacity-80">
+    ติดต่อเจ้าหน้าที่
+  </p>
+  <p class="mt-2 text-sm font-medium leading-relaxed">
+    การไฟฟ้าส่วนภูมิภาคเขต 3 ภาคเหนือ <br />
+    <span class="text-xs opacity-70">
+      ฝ่ายสนับสนุนงาน แผนกปฏิบัติการดิจิทัลและการสื่อสาร
+    </span>
+  </p>
+  <button
+    class="mt-4 px-6 py-2 rounded-full
+           bg-gradient-to-r from-sky-500 to-blue-600
+           hover:scale-105
+           text-white
+           transition flex items-center gap-2 ml-auto
+           shadow-lg"
+  >
+    <span>📞</span>
+    <span class="font-medium">10370-74</span>
+  </button>
+</div>
+        </div>
       </div>
     </section>
   </UDashboardPanel>

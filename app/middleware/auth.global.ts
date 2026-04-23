@@ -26,9 +26,9 @@ export default defineNuxtRouteMiddleware((to) => {
 		}
 	}
 
-	if (requiresAuth === false) {
-		if (userSession.user.value) {
-			return navigateTo("/");
-		}
-	}
+if (requiresAuth === false) {
+  if (userSession.user.value && to.path !== "/") {
+    return navigateTo("/");
+  }
+}
 });

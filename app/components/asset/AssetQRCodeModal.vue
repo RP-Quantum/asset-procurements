@@ -70,7 +70,6 @@ function handleDownload() {
 							class="text-muted-foreground size-8 animate-spin"
 						/>
 					</div>
-
 					<div
 						v-else-if="error"
 						class="bg-error/10 text-error flex h-[300px] w-[300px] items-center justify-center rounded-lg"
@@ -80,7 +79,6 @@ function handleDownload() {
 							<p class="text-sm">{{ error }}</p>
 						</div>
 					</div>
-
 					<img
 						v-else
 						:src="qrCodeDataUrl"
@@ -92,7 +90,6 @@ function handleDownload() {
 						สแกน QR Code เพื่อดูข้อมูลทรัพย์สิน
 					</p>
 				</div>
-
 				<!-- Actions -->
 				<div class="flex gap-2">
 					<UButton

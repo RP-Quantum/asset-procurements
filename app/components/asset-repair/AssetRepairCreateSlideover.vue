@@ -7,7 +7,7 @@ import type { FormSubmitEvent, DropdownMenuItem } from "@nuxt/ui";
 
 /* ------------------ EMIT ------------------ */
 const emit = defineEmits<{
-  close: [SerializedAssetRepairWithRelations | undefined];
+  close: [{ created: boolean; data?: SerializedAssetRepairWithRelations }];
 }>();
 
 /* ------------------ SERVICES ------------------ */
@@ -31,7 +31,7 @@ const state = reactive<CreateAssetRepairDTO>({
   informedAt: "" as unknown as Date,
 });
 
-/* ------------------ ASSET SEARCH (SERVER SIDE) ------------------ */
+/* ------------------ ASSET SEARCH ------------------ */
 const assetSearch = ref("");
 const isSearching = ref(false);
 const assetItems = ref<DropdownMenuItem[][]>([]);
@@ -48,7 +48,7 @@ watch(assetSearch, async (q) => {
   try {
     const res = await assetService.getAssets({
       page: 1,
-      perPage: 15, // จำกัดไว้ กันหนักเครื่อง
+      perPage: 15,
       search: q,
     });
 
@@ -88,7 +88,9 @@ async function handleCreate(event: FormSubmitEvent<CreateAssetRepairDTO>) {
       message: "คุณได้เพิ่มการซ่อมใหม่เรียบร้อยแล้ว",
     });
 
-    emit("close", data);
+    // ✅ ปิด overlay + ส่งค่า
+    emit("close", { created: true, data });
+
   } catch (error) {
     handleToastError(error);
   } finally {
@@ -96,123 +98,124 @@ async function handleCreate(event: FormSubmitEvent<CreateAssetRepairDTO>) {
   }
 }
 </script>
-
-
-
 <template>
-  <USlideover title="เพิ่มการซ่อม">
-    <slot />
-
+  <USlideover
+    title="เพิ่มการซ่อม"
+    @close="emit('close', { created: false })"
+    :ui="{
+      width: 'max-w-md',
+      body: { base: 'flex-1 overflow-y-auto p-6' },
+      header: { base: 'px-6 py-4 border-b border-gray-200 dark:border-gray-800' }
+    }"
+  >
     <template #body>
       <UForm
-        class="space-y-2 sm:space-y-3"
+        class="flex flex-col gap-y-6"
         :schema="schema"
         :state="state"
         @submit="handleCreate"
       >
-        <!-- ASSET -->
-        <UFormField
-          name="assetId"
-          :label="getAssetRepairFieldLabel('asset')"
-          required
-        >
-          <div class="space-y-1">
-            <UInput
-              v-if="!state.assetId"
-              v-model="assetSearch"
-              icon="i-lucide-search"
-              placeholder="ค้นหาทรัพย์สิน (tag / type / แผนก)"
-              :loading="isSearching"
-            />
+        <UFormField name="assetId" label="ทรัพย์สิน" required>
+          <div class="relative mt-1">
+            <div v-if="!state.assetId" class="space-y-3">
+              <UInput
+                v-model="assetSearch"
+                icon="i-lucide-search"
+                placeholder="ค้นหาชื่อหรือรหัสทรัพย์สิน..."
+                :loading="isSearching"
+                size="lg"
+                class="w-full shadow-sm"
+              />
+              
+              <div v-if="assetItems.length" class="animate-in fade-in slide-in-from-top-1 duration-200">
+                <USelectMenu
+                  :items="assetItems"
+                  class="w-full"
+                  :teleport="false"
+                  :uiMenu="{
+                    container: 'z-20 w-full mt-1 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-xl rounded-lg'
+                  }"
+                >
+                  <UButton 
+                    block 
+                    variant="soft" 
+                    color="primary" 
+                    icon="i-lucide-list-checks"
+                    label="กดเพื่อดูรายการที่พบ"
+                  />
+                </USelectMenu>
+              </div>
+            </div>
 
-            <UInput
-              v-else
-              :model-value="selectedAssetLabel"
-              disabled
-              icon="i-lucide-check"
-            />
-
-<UDropdownMenu
-  v-if="assetItems.length"
-  :items="assetItems"
-  class="w-full"
-  :teleport="false"
-  :content-class="'max-h-64 overflow-y-auto'"
->
-  <UButton
-    block
-    color="neutral"
-    variant="outline"
-    icon="i-lucide-box"
-  >
-    เลือกทรัพย์สิน
-  </UButton>
-</UDropdownMenu>
-
-
-            <UButton
-              v-if="state.assetId"
-              size="xs"
-              variant="ghost"
-              color="red"
-              @click="
-                state.assetId = '';
-                selectedAssetLabel = '';
-              "
+            <div 
+              v-else 
+              class="flex flex-col p-4 rounded-xl border-2 border-primary-500/20 bg-primary-50/50 dark:bg-primary-950/20 transition-all"
             >
-              เปลี่ยนทรัพย์สิน
-            </UButton>
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-3">
+                  <div class="p-2 bg-primary-500 rounded-lg">
+                    <UIcon name="i-lucide-package" class="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-primary-600 dark:text-primary-400 uppercase tracking-wider">เลือกแล้ว</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">{{ selectedAssetLabel }}</p>
+                  </div>
+                </div>
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  color="red"
+                  icon="i-lucide-x"
+                  class="rounded-full"
+                  @click="state.assetId = ''; selectedAssetLabel = '';"
+                />
+              </div>
+            </div>
           </div>
         </UFormField>
 
-        <!-- INCIDENT -->
-        <UFormField
-          name="incidentId"
-          :label="getAssetRepairFieldLabel('incidentId')"
-          required
-        >
-          <UInput v-model="state.incidentId" />
+        <UDivider class="opacity-50" />
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <UFormField name="incidentId" label="รหัสเหตุการณ์" required class="md:col-span-1">
+            <UInput v-model="state.incidentId" icon="i-lucide-hash" placeholder="เช่น INC-001" />
+          </UFormField>
+
+          <UFormField name="informedAt" label="วันที่แจ้ง" class="md:col-span-1">
+            <UInput v-model="state.informedAt" type="date" icon="i-lucide-calendar" />
+          </UFormField>
+        </div>
+
+        <UFormField name="title" label="หัวข้อการซ่อม" required>
+          <UInput v-model="state.title" placeholder="ระบุปัญหาเบื้องต้น" size="md" />
         </UFormField>
 
-        <!-- TITLE -->
-        <UFormField
-          name="title"
-          :label="getAssetRepairFieldLabel('title')"
-          required
-        >
-          <UInput v-model="state.title" />
+        <UFormField name="cause" label="สาเหตุที่พบ" required>
+          <UInput v-model="state.cause" placeholder="เช่น อุปกรณ์เสื่อมสภาพ" />
         </UFormField>
 
-        <!-- CAUSE -->
-        <UFormField
-          name="cause"
-          :label="getAssetRepairFieldLabel('cause')"
-          required
-        >
-          <UInput v-model="state.cause" />
+        <UFormField name="description" label="รายละเอียดเพิ่มเติม">
+          <UTextarea 
+            v-model="state.description" 
+            placeholder="อธิบายรายละเอียดการชำรุด..." 
+            :rows="4"
+            class="resize-none"
+          />
         </UFormField>
 
-        <!-- DESCRIPTION -->
-        <UFormField
-          name="description"
-          :label="getAssetRepairFieldLabel('description')"
-        >
-          <UInput v-model="state.description" textarea />
-        </UFormField>
-
-        <!-- DATE -->
-        <UFormField
-          name="informedAt"
-          :label="getAssetRepairFieldLabel('informedAt')"
-        >
-          <UInput v-model="state.informedAt" type="date" />
-        </UFormField>
-
-        <UButton type="submit" block :loading="isCreating">
-          เพิ่มการซ่อม
-        </UButton>
+        <div class="sticky bottom-0 pt-6 mt-auto bg-white dark:bg-gray-900/80 backdrop-blur-sm">
+          <UButton 
+            type="submit" 
+            block 
+            size="xl"
+            :loading="isCreating"
+            icon="i-lucide-save"
+            class="shadow-lg shadow-primary-500/20"
+          >
+            บันทึกข้อมูลการซ่อม
+          </UButton>
+        </div>
       </UForm>
     </template>
   </USlideover>
 </template>
-
