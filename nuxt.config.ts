@@ -1,9 +1,9 @@
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-  
-  // 1. เพิ่มโหมดการทำงาน (ถ้าไม่มี Backend Server ให้รัน)
-  ssr: false, 
+
+  // เปลี่ยนเป็น true เพื่อให้รองรับ Prisma และ Auth ได้สมบูรณ์
+  ssr: true, 
 
   modules: [
     "@nuxt/eslint",
@@ -22,19 +22,16 @@ export default defineNuxtConfig({
     },
   ],
 
-  // 2. ถ้าใช้ Render แบบ Static ให้ย้ายค่าที่จำเป็นไปที่ public
-  // แต่ถ้าเป็นความลับ (เช่น Password DB) ห้ามใส่ตรงๆ นะครับ
   runtimeConfig: {
     public: {
-      // ค่าที่ฝั่ง Browser สามารถเห็นได้
+      apiBase: process.env.NUXT_PUBLIC_API_BASE
     },
+    // ถ้ามี Database URL สำหรับ Prisma ให้ใส่ไว้ที่นี่ (ไม่ใส่ใน public)
     databaseUrl: process.env.NUXT_DATABASE_URL,
   },
 
   css: ["~/assets/css/main.css"],
 
-  // 3. (เพิ่มเติม) สำหรับการ Build บน Render
-  nitro: {
-    preset: 'render_static'
-  }
+  // ❌ ลบส่วน nitro preset ออกไปเลยครับ ❌
+  // เพื่อให้ Render ตรวจจับเองว่าเป็น Web Service
 });
