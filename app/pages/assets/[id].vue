@@ -3,170 +3,185 @@ const route = useRoute();
 const assetId = route.params.id as string;
 
 definePageMeta({
-	requiresAuth: true,
+  requiresAuth: true,
 });
 
 const assetService = useAssetService();
-const { data: asset, error } = await useAsyncData(() =>
-	assetService.getAssetById(assetId),
+
+/* ---------------- FETCH ---------------- */
+const {
+  data: asset,
+  error,
+  pending,
+} = await useAsyncData(`asset-${assetId}`, () =>
+  assetService.getAssetById(assetId)
 );
 
-useSeoMeta({
-	title: asset.value?.data.tag
-		? `ทรัพย์สิน - ${asset.value.data.tag}`
-		: "ทรัพย์สิน",
+/* ---------------- SEO (แก้ให้ reactive) ---------------- */
+watchEffect(() => {
+  useSeoMeta({
+    title: asset.value?.data?.tag
+      ? `ทรัพย์สิน - ${asset.value.data.tag}`
+      : "ทรัพย์สิน",
+  });
 });
 
+/* ---------------- ERROR ---------------- */
 if (error.value) {
-	throw createError({
-		statusCode: 404,
-		message: "ไม่พบทรัพย์สินที่ค้นหา",
-	});
+  throw createError({
+    statusCode: 404,
+    message: "ไม่พบทรัพย์สินที่ค้นหา",
+  });
 }
+
+/* ---------------- FORMAT ---------------- */
+const formatDate = (date?: string) => {
+  if (!date) return "-";
+  return new Date(date).toLocaleDateString("th-TH");
+};
 </script>
 
 <template>
-	<UDashboardPanel v-if="asset">
-		<template #header>
-			<UDashboardNavbar :title="`ทรัพย์สิน - ${asset.data.tag}`">
-				<template #left>
-					<UButton
-						color="neutral"
-						variant="ghost"
-						icon="lucide:arrow-left"
-						to="/assets"
-					>
-						กลับ
-					</UButton>
-				</template>
-			</UDashboardNavbar>
-		</template>
+  <UDashboardPanel>
+    <!-- HEADER -->
+    <template #header>
+      <UDashboardNavbar
+        :title="asset?.data?.tag ? `ทรัพย์สิน - ${asset.data.tag}` : 'กำลังโหลด...'"
+      >
+        <template #left>
+          <UButton
+            color="neutral"
+            variant="ghost"
+            icon="lucide:arrow-left"
+            to="/assets"
+          >
+            กลับ
+          </UButton>
+        </template>
+      </UDashboardNavbar>
+    </template>
 
-		<template #body>
-			<div class="mx-auto max-w-4xl space-y-6 p-6">
-				<!-- Asset Header -->
-				<div class="border-default bg-card rounded-lg border p-6">
-					<h2 class="mb-4 text-2xl font-bold">{{ asset.data.tag }}</h2>
-					<div class="grid gap-4 sm:grid-cols-2">
-						<div>
-							<label class="text-muted-foreground block text-sm">{{
-								getAssetFieldLabel("type")
-							}}</label>
-							<p class="text-foreground font-medium">{{ asset.data.type }}</p>
-						</div>
-						<div>
-							<label class="text-muted-foreground block text-sm">{{
-								getAssetFieldLabel("department")
-							}}</label>
-							<p class="text-foreground font-medium">
-								{{ asset.data.department.name }}
-							</p>
-						</div>
-					</div>
-				</div>
+    <template #body>
+      <div class="mx-auto max-w-5xl px-4 sm:px-6 py-6 space-y-6">
 
-				<!-- Asset Details -->
-				<div class="border-default bg-card rounded-lg border p-6">
-					<h3 class="mb-4 text-lg font-semibold">รายละเอียด</h3>
-					<div class="space-y-4">
-						<div v-if="asset.data.brand" class="grid gap-2 sm:grid-cols-3">
-							<label class="text-muted-foreground text-sm">{{
-								getAssetFieldLabel("brand")
-							}}</label>
-							<p class="text-foreground sm:col-span-2">
-								{{ asset.data.brand }}
-							</p>
-						</div>
-						<div v-if="asset.data.model" class="grid gap-2 sm:grid-cols-3">
-							<label class="text-muted-foreground text-sm">{{
-								getAssetFieldLabel("model")
-							}}</label>
-							<p class="text-foreground sm:col-span-2">
-								{{ asset.data.model }}
-							</p>
-						</div>
-						<div
-							v-if="asset.data.serialNumber"
-							class="grid gap-2 sm:grid-cols-3"
-						>
-							<label class="text-muted-foreground text-sm">{{
-								getAssetFieldLabel("serialNumber")
-							}}</label>
-							<p class="text-foreground sm:col-span-2">
-								{{ asset.data.serialNumber }}
-							</p>
-						</div>
-						<div v-if="asset.data.owner" class="grid gap-2 sm:grid-cols-3">
-							<label class="text-muted-foreground text-sm">{{
-								getAssetFieldLabel("owner")
-							}}</label>
-							<p class="text-foreground sm:col-span-2">
-								{{ asset.data.owner }}
-							</p>
-						</div>
-						<div v-if="asset.data.details" class="grid gap-2 sm:grid-cols-3">
-							<label class="text-muted-foreground text-sm">{{
-								getAssetFieldLabel("details")
-							}}</label>
-							<p class="text-foreground sm:col-span-2">
-								{{ asset.data.details }}
-							</p>
-						</div>
-					</div>
-				</div>
+        <!-- LOADING -->
+        <div v-if="pending" class="space-y-4">
+          <USkeleton class="h-24 w-full rounded-xl" />
+          <USkeleton class="h-40 w-full rounded-xl" />
+          <USkeleton class="h-40 w-full rounded-xl" />
+        </div>
 
-				<!-- Contract Information -->
-				<div
-					v-if="asset.data.contractNumber || asset.data.contractEndDate"
-					class="border-default bg-card rounded-lg border p-6"
-				>
-					<h3 class="mb-4 text-lg font-semibold">ข้อมูลสัญญา</h3>
-					<div class="space-y-4">
-						<div
-							v-if="asset.data.contractNumber"
-							class="grid gap-2 sm:grid-cols-3"
-						>
-							<label class="text-muted-foreground text-sm">{{
-								getAssetFieldLabel("contractNumber")
-							}}</label>
-							<p class="text-foreground sm:col-span-2">
-								{{ asset.data.contractNumber }}
-							</p>
-						</div>
-						<div
-							v-if="asset.data.contractEndDate"
-							class="grid gap-2 sm:grid-cols-3"
-						>
-							<label class="text-muted-foreground text-sm">{{
-								getAssetFieldLabel("contractEndDate")
-							}}</label>
-							<p class="text-foreground sm:col-span-2">
-								{{ asset.data.contractEndDate }}
-							</p>
-						</div>
-					</div>
-				</div>
+        <!-- CONTENT -->
+        <template v-else-if="asset">
 
-				<!-- Department Details -->
-				<div class="border-default bg-card rounded-lg border p-6">
-					<h3 class="mb-4 text-lg font-semibold">หน่วยงาน</h3>
-					<div class="space-y-4">
-						<div class="grid gap-2 sm:grid-cols-3">
-							<label class="text-muted-foreground text-sm">ชื่อหน่วยงาน</label>
-							<p class="text-foreground sm:col-span-2">
-								{{ asset.data.department.name }}
-							</p>
-						</div>
-						<div class="grid gap-2 sm:grid-cols-3">
-							<label class="text-muted-foreground text-sm">สถานที่</label>
-							<p class="text-foreground sm:col-span-2">
-								{{ asset.data.department.location.name }}
-							</p>
-						</div>
-					</div>
-				</div>
-					<!-- เพิ่มส่วนของการซ่อม ด้านล่วงนี้-->
-			</div>
-		</template>
-	</UDashboardPanel>
+          <!-- HEADER CARD -->
+          <div class="bg-white dark:bg-gray-900 border rounded-2xl p-5 sm:p-6 shadow-sm">
+            <h2 class="text-xl sm:text-2xl font-bold mb-4 break-words">
+              {{ asset.data.tag }}
+            </h2>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="text-xs sm:text-sm text-gray-400">
+                  {{ getAssetFieldLabel("type") }}
+                </label>
+                <p class="font-medium">{{ asset.data.type || "-" }}</p>
+              </div>
+
+              <div>
+                <label class="text-xs sm:text-sm text-gray-400">
+                  {{ getAssetFieldLabel("department") }}
+                </label>
+                <p class="font-medium">
+                  {{ asset.data.department?.name || "-" }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DETAILS -->
+          <div class="bg-white dark:bg-gray-900 border rounded-2xl p-5 sm:p-6 shadow-sm">
+            <h3 class="text-lg font-semibold mb-4">รายละเอียด</h3>
+
+            <div class="space-y-3 text-sm sm:text-base">
+
+              <div class="grid sm:grid-cols-3 gap-2">
+                <span class="text-gray-400">Brand</span>
+                <span class="sm:col-span-2">{{ asset.data.brand || "-" }}</span>
+              </div>
+
+              <div class="grid sm:grid-cols-3 gap-2">
+                <span class="text-gray-400">Model</span>
+                <span class="sm:col-span-2">{{ asset.data.model || "-" }}</span>
+              </div>
+
+              <div class="grid sm:grid-cols-3 gap-2">
+                <span class="text-gray-400">S/N</span>
+                <span class="sm:col-span-2">{{ asset.data.serialNumber || "-" }}</span>
+              </div>
+
+              <div class="grid sm:grid-cols-3 gap-2">
+                <span class="text-gray-400">Owner</span>
+                <span class="sm:col-span-2">{{ asset.data.owner || "-" }}</span>
+              </div>
+
+              <div v-if="asset.data.details" class="grid sm:grid-cols-3 gap-2">
+                <span class="text-gray-400">รายละเอียดเพิ่มเติม</span>
+                <span class="sm:col-span-2">{{ asset.data.details }}</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- CONTRACT -->
+          <div
+            v-if="asset.data.contractNumber || asset.data.contractEndDate"
+            class="bg-white dark:bg-gray-900 border rounded-2xl p-5 sm:p-6 shadow-sm"
+          >
+            <h3 class="text-lg font-semibold mb-4">ข้อมูลสัญญา</h3>
+
+            <div class="space-y-3 text-sm sm:text-base">
+
+              <div v-if="asset.data.contractNumber" class="grid sm:grid-cols-3 gap-2">
+                <span class="text-gray-400">เลขสัญญา</span>
+                <span class="sm:col-span-2">{{ asset.data.contractNumber }}</span>
+              </div>
+
+              <div v-if="asset.data.contractEndDate" class="grid sm:grid-cols-3 gap-2">
+                <span class="text-gray-400">วันหมดสัญญา</span>
+                <span class="sm:col-span-2">
+                  {{ formatDate(asset.data.contractEndDate) }}
+                </span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- DEPARTMENT -->
+          <div class="bg-white dark:bg-gray-900 border rounded-2xl p-5 sm:p-6 shadow-sm">
+            <h3 class="text-lg font-semibold mb-4">หน่วยงาน</h3>
+
+            <div class="space-y-3 text-sm sm:text-base">
+
+              <div class="grid sm:grid-cols-3 gap-2">
+                <span class="text-gray-400">ชื่อหน่วยงาน</span>
+                <span class="sm:col-span-2">
+                  {{ asset.data.department?.name || "-" }}
+                </span>
+              </div>
+
+              <div class="grid sm:grid-cols-3 gap-2">
+                <span class="text-gray-400">สถานที่</span>
+                <span class="sm:col-span-2">
+                  {{ asset.data.department?.location?.name || "-" }}
+                </span>
+              </div>
+
+            </div>
+          </div>
+
+        </template>
+      </div>
+    </template>
+  </UDashboardPanel>
 </template>

@@ -147,7 +147,7 @@ useSeoMeta({ title: "Procurement Portal | ระบบจัดซื้อ" });
         การจัดทำเอกสารจัดซื้อ
       </span>
       <span class="text-xs text-gray-500 dark:text-gray-400 tracking-wide uppercase">
-        Asset Management System
+        Procurement Management System
       </span>
     </div>
 
