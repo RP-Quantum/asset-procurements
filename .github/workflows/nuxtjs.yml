@@ -34,6 +34,11 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      # 1. ต้องสร้าง Prisma Client ก่อน
+      - name: Generate Prisma Client
+        run: bun prisma generate
+
+      # 2. แล้วค่อยสั่ง Build/Generate Nuxt
       - name: Static HTML export with Nuxt
         run: bun run generate
 
